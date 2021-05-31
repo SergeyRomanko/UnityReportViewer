@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<noscript>
+		  <style>
+			[data-simplebar] {
+			  overflow: auto;
+			}
+		  </style>
+		</noscript>
+	
+        <meta charset="utf-8">
+        <title>New Webpage</title>
+		
+		<link href="https://allfont.ru/allfont.css?fonts=droid-sans-mono" rel="stylesheet" type="text/css" />
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		
+		<link rel="stylesheet" href="node_modules/simplebar/dist/simplebar.css"/>
+		<script src="node_modules/simplebar/dist/simplebar.js"></script>
+		
+		<style>
+			@font-face {
+				font-family: 'Droid Sans';
+				src: url('fonts/DroidSans-Bold.eot');
+				src: local('Droid Sans Bold'), local('DroidSans-Bold'),
+					url('fonts/DroidSans-Bold.eot?#iefix') format('embedded-opentype'),
+					url('fonts/DroidSans-Bold.woff') format('woff'),
+					url('fonts/DroidSans-Bold.ttf') format('truetype');
+				font-weight: bold;
+				font-style: normal;
+			}
+
+			@font-face {
+				font-family: 'Droid Sans Mono';
+				src: url('fonts/DroidSansMono.eot');
+				src: local('Droid Sans Mono Regular'), local('DroidSansMono'),
+					url('fonts/DroidSansMono.eot?#iefix') format('embedded-opentype'),
+					url('fonts/DroidSansMono.woff') format('woff'),
+					url('fonts/DroidSansMono.ttf') format('truetype');
+				font-weight: normal;
+				font-style: normal;
+			}
+
+			@font-face {
+				font-family: 'Droid Sans';
+				src: url('fonts/DroidSans.eot');
+				src: local('Droid Sans'), local('DroidSans'),
+					url('fonts/DroidSans.eot?#iefix') format('embedded-opentype'),
+					url('fonts/DroidSans.woff') format('woff'),
+					url('fonts/DroidSans.ttf') format('truetype');
+				font-weight: normal;
+				font-style: normal;
+			}
+		</style>
+
+		<style>
+		  html {
+			height: 100vh;
+			padding: 0;
+			margin: 0;
+		  }
+		
+		  body {
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+			
+			padding: 0;
+			margin: 0;
+			height: 100%;
+			
+			background: #1A1E21;
+			font-family: 'Droid Sans Mono', arial;
+			min-height: 100vh;
+		  }
+
+		  .header {
+			flex-basis: 75px;
+			flex-shrink: 0;
+			text-align: center;
+			vertical-align: middle;
+			color: #bfbfbf;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+		  }
+		
+		.header > .chapters
+		{
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+		}
+		
+		.header > .chapters > .chapter
+		{
+			flex: 0 2 150px;
+			cursor: pointer;
+			color: #989898;
+			background-color: #292e33;
+			margin: 0px 5px;
+		}
+		
+		.header > .chapters > .selected
+		{
+			background-color: #394047;
+		}
+		
+		.header > .title
+		{
+			font-weight: bold;
+			font-size: 20px;
+			margin-bottom: 10px;
+		}
+
+		  .main {
+			display: flex;
+			align-items: stretch;
+			flex: 1 1 auto;
+			margin-left: -10px; 
+			padding: 10px;
+			min-height: 0;
+		  }
+
+		  #entities {
+			flex: 0 0 15vw;
+		  }
+		  
+		  #values {
+			flex: 0 0 25vw;
+		  }
+		  
+		  #filter, 
+		  #types {
+			flex: 0;
+		  }
+		  
+		  #values {
+			 
+		  }
+		  #filter {
+			flex: 0 0;
+			display: flex;
+			align-items: stretch;
+			flex-direction: column;
+			
+			padding: 0 25px;
+			overflow: visible;
+		  }
+		  #types {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			
+			border: 1px solid #393d41;
+			margin-top: 10px;
+		  }
+		  #search {
+			flex: 0 0;
+		  }
+		  #typeList {
+			flex: 1;
+		  }
+		  
+		.big_column
+		{
+			margin-left: 10px;
+			overflow: hidden;
+			align-self: stretch;
+		}
+		
+		.column
+		{
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-start;
+			align-items: stretch;
+		}
+		
+		.row
+		{
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-start;
+			align-items: stretch;
+		}
+
+		.flex1 {
+			flex-grow: 1;
+			flex-shrink: 1;
+		}
+
+		.filterTitle {
+			display: flex;
+			flex: 1;
+			min-height: 50px;
+			align-items: center;
+		} 
+		
+		.filterTitle > span {
+			flex-grow: 1;
+			
+			font-size: 20px;
+			color: rgb(125, 125, 125);
+			font-weight: bold;
+		}
+
+		.entitiesTitle
+		{
+			padding-left: 25px;
+			min-height: 50px;
+			
+			font-size: 20px;
+			font-weight: bold;
+			color: rgb(125, 125, 125);
+		}
+		
+		.entitiesTitle > .space_right
+		{
+			margin-right: 25px;
+		}
+		
+		.center_title{
+			display: flex;
+			align-items: center;
+		}
+		
+		
+		.entitiesTitle > .title {
+			padding-right: 10px;
+		}
+
+		.filterItems {
+			margin-bottom: 10px;
+			
+			flex: 1 0 46px;
+			
+			display: flex;
+			flex-wrap: wrap;
+		
+			padding: 4px 4px;
+			box-sizing: border-box;
+			border: 1px solid #393d41;
+			border-radius: 2px;
+			background-color: #22272b;
+		} 
+		
+		.filterItems > * {
+			flex-basis: auto;
+			flex-shrink: 1;
+			margin: 2px;
+		  }
+		
+		button {
+			transition: background-color 200ms ease-out,filter 200ms,color 200ms;
+			position: relative;
+			padding: 0 20px;
+			vertical-align: middle;
+			box-sizing: border-box;
+			border: 0;
+			border-radius: 2px;
+			outline: 0;
+			font-family: 'Droid Sans Mono', arial;
+			text-align: inherit;
+			cursor: pointer;
+			font-size: 16px;
+			line-height: 32px;
+			white-space:pre;
+		}
+		
+		.button_sys {
+			background-color: #444c55;
+			color: #e6e6e6;
+		}
+		
+		.button_pos {
+			background-color: #567842;
+			color: #e6e6e6;
+		}
+
+		.button_neg {
+			background-color: #992C4C;
+			color: #e6e6e6;
+		}
+		
+		.button_comp {
+			border-radius: 16px;
+			line-height: 32px;
+		}
+		
+		.button.regular {
+			background-color: #22272b;
+			color: #e6e6e6;
+			border-radius: 0px;
+		}
+		
+		.button.regular.selected {
+			background-color: #384147;
+		}
+		
+		button:hover {
+			filter: opacity(80%)
+		}
+		
+		.ellipsis {
+		  text-overflow: ellipsis;
+		  white-space: pre;
+		  overflow: hidden;
+		}
+		
+		.bottom_border {
+			border-color: #393d41;
+			border-style: solid;
+			border-width: 0px 0px 1px 0px;
+		}
+		
+		.border_solid {
+			border-color: #393d41;
+			border-style: solid;
+		}
+		
+		.input__icon {
+			margin-right: 15px;
+			color: #7d7d7d;
+			line-height: 0;
+		}
+		
+		.input_section, .input[data-role=section] {
+			padding: 0 25px;
+			min-height: 50px;
+			line-height: 48px;
+		}
+				
+		
+		.input {
+			transition: border-color 200ms ease-out;
+			position: relative;
+			font-family: 'Droid Sans Mono', arial;
+			border-radius: 2px;
+			box-sizing: border-box;
+			width: 100%;
+			line-height: 32px;
+			min-height: 34px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		
+		.icon--ui__search {
+			width: 14px;
+			height: 14px;
+		}
+		
+		.input__input {
+			outline: 0;
+			position: relative;
+			display: block;
+			transition: color 200ms ease-out;
+			min-height: 50px;
+			z-index: 4;
+			width: 100%;
+			padding-right: 25px;
+		}
+		
+		.input__box {
+			flex: 1;
+			position: relative;
+			overflow: hidden;
+			word-wrap: break-word;
+		}
+		
+		input, textarea, .input-buffer {
+			font-family: 'Droid Sans Mono', arial;
+			font-size: 13px;
+			outline: 0;
+			border: 0;
+			background-color: transparent;
+			color: var(--color--input__text);
+		}
+		
+		.icon--ui__search_input {
+			fill: currentColor;
+			vertical-align: text-top;
+		}
+		
+		.grid {
+		  display: grid;
+		  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+		  grid-auto-rows: min-content;
+		  gap: 0.75em 0.5em;
+		}
+		
+		.ecs_comp
+		{
+			color: #c3c3c3;
+			font-family: 'Droid Sans Mono', arial;
+			font-size: 16px;
+			padding-left: 10px;
+			margin-top: 10px;
+			line-height: 22px;
+			font-weight: bold;
+			display: flex;
+			align-items: center;
+		}
+		
+		.ecs_val
+		{
+			display: flex;
+			color: #a8a8a8;
+			font-family: 'Droid Sans Mono', arial;
+			font-size: 14px;
+			line-height: 22px;
+			padding-left: 38px;
+			align-items: stretch;
+		}
+		
+		.ecs_val > .data
+		{
+			text-overflow: ellipsis;
+			overflow: hidden; 
+			width: 180px; 
+			white-space: nowrap;
+			padding-right: 5px;
+			flex-shrink: 0;
+		}
+		
+		.ecs_val > .value
+		{
+			
+		}
+		
+		.border
+		{
+			border: 1px solid #393d41;
+		}
+		
+		.icon
+		{
+			width: 22px;
+			height: 22px;
+			padding-right: 6px;
+		}
+		
+		.dot.console {
+			display: inline-block;
+			border-radius: 50%;
+			height: 10px;
+			width: 10px;
+			margin-right: 12px;
+		}
+		
+		.dot.console.error {
+			background-color: #F45B57;
+		}
+		
+		.dot.console.warning {
+			background-color: #F4C257;
+		}
+		
+		.dot.console.message {
+			background-color: #57B3F4;
+		}
+		
+		.mid {
+			display: flex;
+			align-items: center;
+		}
+		
+		.small_text {
+			font-size: 14px;
+			color: #c3c3c3;
+		}
+		
+		.log_line {
+			padding-top: 7px;
+			padding-bottom: 7px;
+			line-height: 24px;
+		}
+		
+		.log_message {
+			white-space: pre-wrap;
+			color: #e6e6e6;
+		}
+		
+		.margin_bottom {
+			margin-bottom: 10px;
+		}
+		
+		.loading {
+			height: 100%; 
+			width: 100%;
+			justify-content: center;
+		}
+		
+		.hidden {
+			display: none;
+		}
+
+		.scroll_container {
+			height: 100%;
+			overflow-x: hidden;
+		}
+		
+		.scroll_container.types_container {
+			padding: 4px 15px 4px 15px;
+		}
+		
+		.log_padding {
+			padding: 10px 20px;
+		}
+		
+		.simplebar-scrollbar::before {
+			background: #616161;
+		}
+		
+		.simplebar-track.simplebar-vertical {
+			width: 11px;
+			margin-right: 1px;
+			padding-top: 1px;
+			padding-bottom: 1px;
+		}
+		
+		.screenshot {
+		  width: 100%;
+		  height: 100%;
+		  align-items: center;
+		  justify-content: center;
+		}
+		
+		#canvas
+		{
+			position: absolute;
+			background: #16191C;
+		}
+		
+		#screenshot_image
+		{
+			object-fit: scale-down;
+			max-width: 100%;
+			max-height: 100%;
+		}
+		
+		</style>
+    </head>
+		
+	<script type="text/javascript">
+	
+		var report = {};
+		
+		var selectedEntity = null;
+		var selectedScenarioEntity = null;
+		var selectedScenarioNode = null;
+		var selectedInfoNode = null;
+		
+		var filters = [];
+		var components = [];
+		var neg = false;
+		
+		var errorFlag = true;
+		var warningFlag = false;
+		var messageFlag = true;
+		var selectedLog = null;
+		
+		var showInheritedEcs = false;
+		var showInheritedScenario = false;
+		
+		function toggleShowInheritedEcs(){
+			updateShowInheritedEcs(!showInheritedEcs);
+		}
+
+		function updateShowInheritedEcs(value){
+			showInheritedEcs = value;
+			
+			updateToggleInheritedButton(document.getElementById('more_button_ecs'), showInheritedEcs);
+			
+			updateEntityView();
+		}
+		
+		//scenario
+		function toggleShowInheritedScenario(){
+			updateShowInheritedScenario(!showInheritedScenario);
+		}
+		
+		//scenario
+		function updateShowInheritedScenario(value){
+			showInheritedScenario = value;
+
+			updateToggleInheritedButton(document.getElementById('more_button_scenario'), showInheritedScenario);
+
+			updateScenarioData();
+		}
+		
+		//common
+		function updateToggleInheritedButton(button, showInherited){
+			button.innerHTML = showInherited ? '<span>Less</span>' :'<span>More</span>';
+		}
+		
+		function changeViewState(id) {
+			if (id == "chapter_log") {
+				$( "#log" ).removeClass('hidden');
+			} else {
+				$( "#log" ).addClass('hidden');
+			}
+		
+			if (id == "chapter_ecs") {
+				$( "#ecs" ).removeClass('hidden');
+			} else {
+				$( "#ecs" ).addClass('hidden');
+			}
+			
+			if (id == "chapter_scenario") {
+				$( "#scenario" ).removeClass('hidden');
+			} else {
+				$( "#scenario" ).addClass('hidden');
+			}
+			
+			if (id == "chapter_screenshot") {
+				$( "#screenshot" ).removeClass('hidden');
+				screenshotResize();
+			} else {
+				$( "#screenshot" ).addClass('hidden');
+			}
+			
+			if (id == "chapter_info") {
+				$( "#info" ).removeClass('hidden');
+			} else {
+				$( "#info" ).addClass('hidden');
+			}
+			
+			var v = $( "#chapters" );
+			
+			$( "#chapters" ).children().each(function (index, value) { 
+				if(value.id == id)
+				{
+					$(value).addClass('selected');
+				}
+				else
+				{
+					$(value).removeClass('selected');
+				}
+			});
+		}
+		
+		function toggleErrorLog() {
+			errorFlag = !errorFlag;
+			updateLogFilters();
+			updateLogView();
+		}
+		
+		function toggleWarningLog() {
+			warningFlag = !warningFlag;
+			updateLogFilters();
+			updateLogView();
+		}
+		
+		function toggleMessageLog() {
+			messageFlag = !messageFlag;
+			updateLogFilters();
+			updateLogView();
+		}
+		
+		function updateLogFilters() {
+			if (errorFlag) {
+				document.getElementById('error').classList.add('selected');
+			} else {
+				document.getElementById('error').classList.remove('selected');
+			}
+		
+			if (warningFlag) {
+				document.getElementById('warning').classList.add('selected');
+			} else {
+				document.getElementById('warning').classList.remove('selected');
+			}
+			
+			if (messageFlag) {
+				document.getElementById('message').classList.add('selected');
+			} else {
+				document.getElementById('message').classList.remove('selected');
+			}
+			
+			var errorCount = 0;
+			var warningCount = 0;
+			var messageCount = 0;
+			
+			for (const index in report.log) {
+				switch(report.log[index].type){
+					case "error":   errorCount++;   break;
+					case "warning": warningCount++; break;
+					case "message": messageCount++; break;
+				}
+			}
+			
+			document.getElementById('errorCount').innerHTML = errorCount;
+			document.getElementById('warningCount').innerHTML = warningCount;
+			document.getElementById('messageCount').innerHTML = messageCount;
+		}
+		
+		function updateLogView() {
+			var container = document.getElementById('logContainer');
+			container.innerHTML = '';
+			
+			for (const index in report.log) {
+			
+				if(report.log[index].type == "error" && !errorFlag) {
+					continue;
+				}
+				
+				if(report.log[index].type == "warning" && !warningFlag) {
+					continue;
+				}
+				
+				if(report.log[index].type == "message" && !messageFlag) {
+					continue;
+				}
+			
+				var button = getLogButton(report.log[index].type, report.log[index].text, report.log[index] == selectedLog);
+				container.appendChild(button);
+				
+				$(button).click(function() {
+					var logData = report.log[index];
+					onLogMessageClick(logData);
+				});
+			}
+		}
+		
+		//info
+		function updateInfoView() {
+			var container = document.getElementById('_z_dataContainer');
+			container.innerHTML = '';
+			
+			updateInfoNodeView(container, selectedInfoNode, "");
+		}
+		
+		//info
+		function updateInfoNodeView(container, node, name) {
+			if (node.values !== undefined || node.error !== undefined)
+			{
+				container.appendChild(getNameSpan(name));
+			}
+
+			if (node.values !== undefined)
+			{				
+				for (const record of node.values)
+				{			
+					container.appendChild(getPropertySpan(record.name, record.data));
+				}
+			}
+			
+			if (node.children !== undefined)
+			{
+				for (const child of node.children)
+				{	
+					var childName = (name == "") ? child.name : name + "." + child.name;
+					updateInfoNodeView(container, child, childName);
+				}
+			}
+		}
+		
+		function onLogMessageClick(logData) {
+			selectedLog = logData;
+
+			var container = document.getElementById('messageContainer');
+			container.innerHTML = selectedLog.text;
+
+			updateLogView();
+		}
+		
+		function getComponentButton(name, neg) {	  
+			var button = document.createElement('button');
+			button.type = "submit";
+			button.classList.add('button_comp');
+			button.classList.add('ellipsis');
+			button.classList.add(neg ? 'button_neg' :'button_pos');
+			button.innerHTML = '<span>' + name + '</span>';
+			return button;
+		}
+		
+		function getEntityButton(name, isSelected) {	  
+			var button = document.createElement('button');
+			button.type = "submit";
+			button.classList.add('button');
+			button.classList.add('entity');
+			button.classList.add('regular');
+			button.classList.add('ellipsis');
+			button.classList.add('bottom_border');
+			
+			if (isSelected)
+			{
+				button.classList.add('selected');
+				button.innerHTML = '<span class="mid">' + name + '</span>';
+			}
+			else
+			{
+				button.innerHTML = '<span>' + name + '</span>';
+			}
+
+			return button;
+		}
+		
+		function getLogButton(type, text, isSelected){
+		
+			var lines = text.split("\n");
+		
+			var button = document.createElement('button');
+			button.type = "submit";
+			button.classList.add('button');
+			button.classList.add('regular');
+			button.classList.add('ellipsis');
+			button.classList.add('bottom_border');
+			button.classList.add('row');
+			button.classList.add('mid');
+			button.classList.add('log_line');
+			
+			if (isSelected) 
+			{
+				button.classList.add('selected');
+			}
+			
+			button.innerHTML = '<span class="dot console ' + type + '"></span><div class="column"><span>' + lines[0] + '</span><span class="small_text">' + lines[1] + '</span></div>';
+			return button;
+		}
+
+		//common
+		function getNameSpan(text, icon) {	  
+			var span = document.createElement('span');
+			span.classList.add('ecs_comp');
+			
+			var iconPrefix = (icon !== undefined) ? '<img class="icon" src="' + icon + '">' : '';
+			
+			span.innerHTML = iconPrefix + '<span>' + text + '</span>';
+			
+			return span;
+		}
+		
+		function getPropertySpan(name, value) {	  
+			var span = document.createElement('span');
+			span.classList.add('ecs_val');
+			span.innerHTML = '<span class="data">' + name + '</span> <span class="value">' + value + '</span>';
+			return span;
+		}
+		
+		//Common
+		function componentTypeToIndex(type)
+		{
+			switch(type) {
+				case 'tag':       return 0;
+				case 'shared': 	  return 1;
+				case 'component': return 2;
+				case 'buffer':    return 3;
+				case 'managed':   return 4;
+
+				default: console.error("Unknown component type:\"" + type + "\"");
+			}
+			
+			return Number.MAX_SAFE_INTEGER;
+		}
+
+
+	function showLoadingMessage(text) {
+		document.getElementById("loading_message").innerHTML = text;
+	}
+	  
+	function onClearFiltersClick() {
+		clearSelectedEntity();
+		resetComponents();
+		updateEntities();
+	}
+	
+	function onNegClick() {	  
+		neg = !neg;
+		
+		document.getElementById("negButton").innerHTML = neg ? "Pos" : "Neg";
+				
+		for (var i = 0; i < components.length; i++) {
+			components[i].neg = neg;
+		}
+		
+		updateComponents();
+	}
+	
+	function hasComponent(entity, type)
+	{
+		for (var i = 0; i < entity.components.length; i++) 
+		{
+			if (entity.components[i].type == type)
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	function filterEntity(entity)
+	{
+		for (var i = 0; i < filters.length; i++) 
+		{
+			if (hasComponent(entity, filters[i].type) != !filters[i].neg)
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	function filterEntities(entities)
+	{
+		var result = [];
+		
+		for (var i = 0; i < entities.length; i++)
+		{
+			if (!filterEntity(entities[i]))
+			{
+				continue;
+			}
+					
+			result.push(entities[i]);
+		}
+		
+		return result;
+	}
+	
+	//Scenario
+	function filterScenarioEntities(entities)
+	{
+		var result = [];
+		
+		for (const entity of entities)
+		{
+			if (hasComponent(entity, "MJP2.Common.Components.Scenario"))
+			{
+				result.push(entity);
+			}
+		}
+		
+		return result;
+	}
+	
+	//Common
+	function hasComponent(entity, componentType)
+	{
+		for (const component of entity.components)
+		{
+			if (component.type === componentType)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	//Common
+	function getValue(entity, componentType)
+	{
+		return getValues(entity, componentType)[0];
+	}
+	
+	//Common
+	function getValues(entity, componentType){
+		var result = [];
+	
+		for (const component of entity.components) {
+			if (component.type !== componentType) {
+				continue;
+			}
+		
+			for (const object of component.objects) {
+				for (const value of object.values) {
+					if (value.name !== "Value") {
+						continue;
+					}
+					
+					result.push(value.data);
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	//Scenario
+	function updateScenarioEntities(){
+		var container = document.getElementById('__entitiesContainer');
+		container.innerHTML = '';
+		
+		var filteredEntities = filterScenarioEntities(report.entityDump.entities);
+		
+		var counter = document.getElementById('__entitiesCounter');
+		counter.innerHTML = filteredEntities.length;
+		
+		for (const index in filteredEntities) {
+			var entity = filteredEntities[index];
+			
+			var name = (!entity.name || entity.name.length === 0 ? "Scenario" : entity.name);
+			
+			for (const type of getBelongingTypes(entity)) {
+				name = type.substring(type.indexOf("IsBelongTo") + "IsBelongTo".length);
+			}
+			
+			for (const type of getRepresentationTypes(entity)) {
+				name = type.substring(type.indexOf("IsRepresent") + "IsRepresent".length);
+			}
+			
+			name = (entity.id + ":" + entity.version + "      ").substr(0, 6) + " " + name + " " + getValue(entity, "MJP2.Common.Components.Id");
+			
+			var button = getEntityButton(name, filteredEntities[index] == selectedScenarioEntity);
+			container.appendChild(button);
+			
+			$(button).click(function() {
+				var entity = filteredEntities[index];
+				
+				selectScenario(entity);
+			});
+		}
+	}
+	
+	//Scenario
+	function selectScenario(entity) {
+		var scenarioId = getValue(entity, "MJP2.Common.Components.Id");
+		
+		var blocks = [];
+		var startBlocks = [];
+		
+		for (const entity of report.entityDump.entities) {
+			if (!hasComponent(entity, "MJP2.Common.Components.Block") || !hasComponent(entity, "MJP2.Common.Components.IsBelongToScenario")) {
+				continue;
+			}
+						
+			if (getValue(entity, "MJP2.Common.Components.ScenarioId") != scenarioId) {
+				continue;
+			}
+			
+			blocks.push(entity);
+			
+			if (!hasComponent(entity, "MJP2.Common.Components.IsRepresentStart")) {
+				continue;
+			}
+			
+			startBlocks.push(entity);
+		}
+		
+		tree = TREE.create(entity, getBlockInfo(entity));
+		tree.selected = true;
+		
+		for (const block of startBlocks) {
+			tree.addChild(createTree(block, blocks));
+		}
+		
+		nodes = TREE.getNodeList(tree);
+
+		draw();
+	}
+	
+	//Scenario
+	function createTree(block, scenarioBlocks){	
+		var result = TREE.create(block, getBlockInfo(block), getBlockState(block));
+		
+		var neighbourIds = getValues(block, "MJP2.Common.Components.NeighbourIdForBuffer");
+		
+		for (const neighbourId of neighbourIds) {
+			for (const neighbourBlock of scenarioBlocks) {
+				if (neighbourId !== getValue(neighbourBlock, "MJP2.Common.Components.Id")){
+					continue;
+				}
+				
+				result.addChild(createTree(neighbourBlock, scenarioBlocks));
+			}
+		}
+		
+		return result;
+	}
+	
+	//Common
+	function getEntity(entities, componentTypes){	
+		top:	
+		for (const entity of entities) {
+			for (const type of componentTypes) {
+				if (!hasComponent(entity, type)) continue top;
+			}
+
+			return entity;
+		}
+		
+		return null;
+	}
+	
+	//Common
+	function getBelongingTypes(entity){
+		return getComponentTypes(entity, "IsBelongTo");
+	}
+	
+	//Common
+	function getRepresentationTypes(entity){
+		return getComponentTypes(entity, "IsRepresent");
+	}
+	
+	//Common
+	function getComponentTypes(entity, prefix){
+		var result = [];
+		
+		for (const component of entity.components) {
+			if (component.type.indexOf(prefix) == -1)
+			{
+				continue;
+			}
+			
+			result.push(component.type);
+		}
+		
+		return result;
+	}
+	
+	//Scenario
+	function getBlockInfo(entity){
+		var name = "";
+	
+		if (hasComponent(entity, "MJP2.Common.Components.Scenario"))
+		{
+			name = "Scenario";
+		}
+		else
+		{
+			for (const type of getRepresentationTypes(entity)) {
+				if (type == "MJP2.Common.Components.IsRepresentStart")
+				{
+					continue;
+				}
+				
+				name = type.substring(type.indexOf("IsRepresent") + "IsRepresent".length);
+			}
+		}
+		
+		var suffix = "";
+		
+		switch (name) {
+			case "Tutorial":
+			case "Cutscene":
+			case "Scenario":
+				suffix = getValue(entity, "MJP2.Common.Components.Id");
+				break;
+			case "ItemUnlocking":
+				suffix = getValue(entity, "MJP2.Common.Components.TargetId");
+				break;
+			case "WaitingForActivateItem":
+				suffix = getValue(entity, "MJP2.Common.Components.IdForBuffer");
+				break;
+			case "WaitingForActivateItemCount":
+				suffix = getValue(entity, "MJP2.Common.Components.Count");
+				break;
+			case "WaitingForStartPuzzle":
+				suffix = getValue(entity, "MJP2.Common.Components.Index");
+				break;	
+			case "PhraseShowing":
+				//suffix = "\n" + getValue(entity, "MJP2.Common.Components.TextKey");
+				break;	
+		}
+		
+		if (suffix !== ""){
+			suffix = " " + suffix;
+		}
+		
+		return name + suffix;
+	}
+	
+	//Scenario
+	function getBlockState(entity){
+		if (hasComponent(entity, "MJP2.Common.Components.IsProcessed")) return TREE.STATE_PROCESSED;
+		if (hasComponent(entity, "MJP2.Common.Components.IsActive"))    return TREE.STATE_ACTIVE;
+		if (hasComponent(entity, "MJP2.Common.Components.IsComplete"))  return TREE.STATE_COMPLETE;
+		
+		return TREE.STATE_WAITING;
+	}
+	
+	//Scenario
+	function onNodeSelected(event){
+		selectedScenarioNode = event.detail;
+		
+		updateScenarioData();
+	}
+	
+	//Scenario
+	function updateScenarioData(){
+		updateData(selectedScenarioNode, document.getElementById('__dataContainer'), showInheritedScenario);	//TODO __dataContainer
+	}
+	
+	function updateEntities()
+	{
+		var container = document.getElementById('entitiesContainer');
+		container.innerHTML = '';
+		
+		var filteredEntities = filterEntities(report.entityDump.entities);
+		
+		var counter = document.getElementById('entitiesCounter');
+		counter.innerHTML = filteredEntities.length;
+		
+		for (const index in filteredEntities) {
+			var entity = filteredEntities[index];
+			
+			var name = (entity.id + ":" + entity.version + "      ").substr(0, 6) + " " + (!entity.name || entity.name.length === 0 ? ("Entity") : entity.name);
+			
+			var button = getEntityButton(name, filteredEntities[index] == selectedEntity);
+			container.appendChild(button);
+			
+			$(button).click(function() {
+				var entity = filteredEntities[index];
+				
+				onEntityClick(entity);
+			});
+		}
+	}
+
+	function onEntityClick(entity)
+	{
+		selectedEntity = entity;
+		
+		updateEntityView();
+	}
+	
+	function updateEntityView()
+	{		
+		updateEntities();
+		updateData(selectedEntity, document.getElementById('dataContainer'), showInheritedEcs);
+	}
+	
+	function updateData(entity, container, showInherited){
+		container.innerHTML = '';
+		
+		if (entity == null) {
+			return;
+		}
+		
+		entity.components.sort(function(a, b) {
+			return componentTypeToIndex(getComponentType(a)) - componentTypeToIndex(getComponentType(b));
+		});
+
+		for (var i = 0; i < entity.components.length; i++) {	
+
+			var component = entity.components[i];
+
+			var type = getComponentType(component);
+
+			switch(type) {
+				case 'tag':
+					container.appendChild(getNameSpan(component.type, getComponentIcon(type)));
+					break;
+				
+				case 'shared':
+				case 'managed':	
+				case 'component':
+					container.appendChild(getNameSpan(component.type, getComponentIcon(type)));
+					updateObjects(container, component.objects, showInherited);
+					break;
+
+				case 'buffer':
+					container.appendChild(getNameSpan(component.type + " [" + component.objects.length +"]", getComponentIcon(type)));
+					updateObjects(container, component.objects, showInherited);
+					break;
+
+				default:
+					console.error("Unknown entity type:\""+ type +"\"");
+			}
+		}
+	}
+	
+	//common
+	function updateObjects(container, objects, showInherited)
+	{
+		for (const object of objects)
+		{
+			for (const value of filterObjectValues(object.values, showInherited))
+			{
+				container.appendChild(getPropertySpan(value.name, value.data));
+			}
+		}
+	}
+	
+	//common
+	function filterObjectValues(values, showInherited){
+		var result = [];
+		
+		for (const value of values)
+		{
+			if (value.isInherited && !showInherited) {
+				continue;
+			}
+			
+			result.push(value);
+		}
+		
+		return result;
+	}
+	
+	function getComponentType(component)
+	{
+		if(component.isBuffer)
+		{
+			return 'buffer';
+		}
+		
+		if(component.isSharedComponent)
+		{
+			return 'shared';
+		}
+		
+		if(component.isManagedComponent)
+		{
+			return 'managed';
+		}
+		
+		if(component.isZeroSized)
+		{
+			return 'tag';
+		}
+		
+		return 'component';
+	}
+	
+	function resetComponents(){	
+		components = [];
+		
+		for (var i = 0; i < report.components.length; i++) {
+			components.push({
+				name:report.components[i].substring(report.components[i].lastIndexOf('.') + 1), 
+				type:report.components[i], 
+				neg:neg});
+		}
+		
+		updateComponents();
+		
+		filters = [];
+		updateFilters();
+	}
+
+	function addFilter(componentData) {	  
+		filters.push(componentData);
+		
+		updateFilters();
+	}
+	
+	function removeFilter(componentData) {	  
+		filters.splice(filters.indexOf(componentData), 1);
+		
+		updateFilters();
+	}
+	
+	function addComponent(componentData) {
+		componentData.neg = neg;	
+		
+		components.push(componentData);
+		
+		updateComponents();
+	}
+	
+	function removeComponent(componentData) {	  
+		components.splice(components.indexOf(componentData), 1);
+		
+		updateComponents();
+	}
+	
+	function updateFilters() {	 
+		updateComponentsView("filterList", filters, [addComponent, removeFilter, updateEntities]);
+	}
+	
+	function updateComponents() {	 
+		updateComponentsView("typeList", components, [addFilter, removeComponent, updateEntities]);
+	}
+	
+	function updateComponentsView(containerId, componentList, onClickHandlers) {	 
+		var container = document.getElementById(containerId);
+		container.innerHTML = '';
+		
+		for (const index in componentList) {
+			var button = getComponentButton(componentList[index].name, componentList[index].neg);
+			container.appendChild(button);
+			
+			$(button).click(function() {
+				for (var i = 0; i < onClickHandlers.length; i++) {
+					onClickHandlers[i](componentList[index]);
+				}
+			});
+		}
+	}
+	
+	function getComponentIcon(componentType){
+		switch(componentType) {
+			case 'tag':	return 'icons/Tag Component@2x.png';
+			case 'component': return 'icons/Component.png';
+			case 'buffer': return 'icons/Buffer Component@2x.png';
+			case 'chunk': return 'icons/Chunk Component@2x.png';
+			case 'managed': return 'icons/Managed Component@2x.png';
+			case 'shared': return 'icons/Shared Component@2x.png';
+
+			default:
+				console.error("Unknown entity type:\""+ componentType +"\"");
+		}
+	}
+	  
+	function onPageLoaded() {
+		var loadingMessage = "Loading /data.json";
+		showLoadingMessage(loadingMessage);
+		
+		$.ajax({
+			url: 'https://content.dropboxapi.com/2/files/download',
+			type: 'post',
+			processData: false,
+			headers: {
+				"Authorization": "Bearer 9WIFLjOBNHoAAAAAAAAAAXtRkMi29G2kfGFF6n-h3UtZuqqdmJ37wOetVRKYr29I",
+				"Dropbox-API-Arg": '{"path": "/data.json"}',
+				"Content-Type": "text/plain; charset=utf-8",
+			},
+			success: function (response) {
+				showLoadingMessage("Loading complete");
+			
+				console.time('JSON.parse')
+
+				report = JSON.parse(response);
+
+				console.timeEnd('JSON.parse');
+
+				resetComponents();
+				updateEntities();
+
+				updateLogFilters();
+				updateLogView();
+				
+				$( "#loading" ).addClass('hidden');
+				$( "#header" ).removeClass('hidden');
+				changeViewState('chapter_log');
+				
+				//$('.screenshot img').attr("src", report.screenshot);
+				
+				document.getElementById("canvas").addEventListener('nodeSelected', onNodeSelected);
+				
+				var roomScenario = getEntity(report.entityDump.entities, ["MJP2.Common.Components.Scenario", "MJP2.Room.Components.IsBelongToRoom"]);
+				if (roomScenario != null) {
+					selectedScenarioEntity = roomScenario;
+					
+					selectScenario(roomScenario);
+					updateScenarioData(roomScenario);
+				}
+				
+				updateScenarioEntities();
+
+				selectedInfoNode = report.info;
+				updateInfoView();
+				
+				screenshotResize();
+			},
+			error: function (data) {
+				showLoadingMessage("Loading failed");
+				console.error(data);
+			},
+			xhr: function(){
+				var xhr = $.ajaxSettings.xhr();
+				xhr.addEventListener('progress', function(evt){          
+					if (evt.lengthComputable) {
+						var percentComplete = Math.ceil(evt.loaded / evt.total * 100);
+						showLoadingMessage(loadingMessage + " " + percentComplete + "%");
+					}
+				}, false);
+				return xhr;
+			}
+		});
+		
+		$.ajax({
+			url: 'https://content.dropboxapi.com/2/files/download',
+			type: 'post',
+			processData: false,
+			headers: {
+				"Authorization": "Bearer 9WIFLjOBNHoAAAAAAAAAAXtRkMi29G2kfGFF6n-h3UtZuqqdmJ37wOetVRKYr29I",
+				"Dropbox-API-Arg": '{"path": "/data.gzip"}',
+				"Content-Type": "application/octet-stream",
+			},
+			xhrFields: { responseType: 'arraybuffer' },
+			success: function (response) {
+				var originalInput = pako.ungzip(response,{ to: 'string' });
+				
+				$('#screenshot_image').attr("src", originalInput);
+			},
+			error: function (data) {
+
+				console.error(data);
+			}
+		});
+		
+		$(window).resize(screenshotResize);
+	}
+
+	if(window.attachEvent) {
+		window.attachEvent('onload', onPageLoaded);
+	} else {
+		if(window.onload) {
+			var curronload = window.onload;
+			var newonload = function(evt) {
+				curronload(evt);
+				onPageLoaded();
+			};
+			window.onload = newonload;
+		} else {
+			window.onload = onPageLoaded;
+		}
+	}
+	
+	function screenshotResize() {
+		/*var box = $('.screenshot');
+		var img = $('.screenshot img');
+
+		var naturalWidth = img.get(0).naturalWidth;
+		var naturalHeight = img.get(0).naturalHeight;
+
+		var scale = Math.min(box.width() / naturalWidth, box.height() / naturalHeight);
+
+		scale = Math.min(scale, 1.0);
+
+		img.css("width", naturalWidth * scale);
+		img.css("height", naturalHeight * scale);*/
+	}
+	</script>
+	
+    <body>
+	
+		<div id="loading" class="loading mid">
+			<span id="loading_message" class="log_message"></span>
+		</div>
+
+		<div id="header" class="header hidden">
+			<span class="title" title="d20aac88063e550dfae7c948e099c7a2984d92ea">MJP2 🍌 December 17, 1995 03:24:00</span>			
+			<div id="chapters" class="chapters">
+				<span id="chapter_log" class="chapter" onclick="changeViewState(this.id);">Log</span>
+				<span id="chapter_ecs" class="chapter" onclick="changeViewState(this.id);">Entities</span>
+				<span id="" class="chapter" onclick="">Systems</span>
+				<span id="chapter_scenario" class="chapter" onclick="changeViewState(this.id);">Scenarios</span>
+				<span id="" class="chapter" onclick="">Game Objects</span>
+				<span id="chapter_info" class="chapter" onclick="changeViewState(this.id);">Info</span>
+				<span id="chapter_screenshot" class="chapter" onclick="changeViewState(this.id);">Screenshot</span>
+				<span id="" class="chapter" onclick="">Fps</span>
+				<span id="" class="chapter" onclick="">Download</span>
+			</div>
+		</div>
+		  
+		<div id="log" class="main column hidden">
+			<div class="big_column column border margin_bottom flex1">
+				<div class="entitiesTitle bottom_border row">
+					<div class="center_title flex1" ><span class="title">Console</span></div>
+					<button id="error"   type="submit" class="button regular border_solid" onclick="toggleErrorLog()"><span class="dot console error"></span><span id="errorCount">-</span></button>
+					<button id="warning" type="submit" class="button regular border_solid" onclick="toggleWarningLog()"><span class="dot console warning"></span><span id="warningCount">-</span></button>
+					<button id="message" type="submit" class="button regular border_solid" onclick="toggleMessageLog()"><span class="dot console message"></span><span id="messageCount">-</span></button>
+				</div>
+
+				<div data-simplebar data-simplebar-auto-hide="false" class="scroll_container">
+					<div id="logContainer" class="column"></div>
+				</div>
+			</div>
+			<div class="big_column column border flex1">
+				<div class="entitiesTitle bottom_border center_title">
+					<span class="title">Message</span>
+				</div>
+
+				<div data-simplebar data-simplebar-auto-hide="false" class="scroll_container log_padding">
+					<span id="messageContainer" class="log_message"></span>
+				</div>
+			</div>
+		</div>
+		  <div id="ecs" class="main hidden">
+			<div id="components" class="column flex1">
+				<div id="filter" class="border big_column">
+					<div class="filterTitle">
+						<span>Filter</span>
+						<button type="submit" class="button_sys" onclick="onClearFiltersClick()"><span>Clear</span></button>
+					</div>
+					<div id="filterList" class="filterItems">
+
+					</div>
+				</div>
+				<div id="types" class="border big_column">
+					<div id="search">
+						<section class="input input_section" data-role="search">
+							<span class="input__icon">
+								<svg xmlns="http://www.w3.org/2000/svg" class="icon icon--ui__search icon--ui__search_input">
+									<use xlink:href="#icon--ui__search">
+										
+										<svg id="icon--ui__search" viewBox="0 0 14 14"><path d="M13.65 12.005L10.61 8.96c-.015-.015-.035-.025-.055-.04A5.753 5.753 0 005.75 0 5.757 5.757 0 00-.01 5.755a5.757 5.757 0 008.92 4.81c.015.015.03.035.045.05l3.04 3.04a1.168 1.168 0 101.655-1.65zm-7.9-2.49a3.759 3.759 0 01-3.76-3.76 3.759 3.759 0 117.52 0 3.762 3.762 0 01-3.76 3.76z" fill-rule="evenodd"></path></svg>
+										
+									</use>
+								</svg>
+							</span>
+							<span class="input__box">
+								<input class="input__input" placeholder="Search" autocomplete="off" name="q" value="">
+								<span class="input__clear input__clear_visible">
+									<span class="input__clear-inner">
+										<span class="input__clear-background"></span>
+									</span>
+								</span>
+							</span>
+							<button id="negButton" class="button button_sys" onclick="onNegClick()">Neg</button>
+						</section>
+					</div>
+
+					<div data-simplebar data-simplebar-auto-hide="false" class="scroll_container types_container">
+						<div id="typeList" class="grid flex1"></div>
+					</div>
+				</div>
+			</div>
+			<div id="entities" class="big_column column border">
+				<div class="entitiesTitle bottom_border center_title">
+					<span class="title">Entities</span>
+					<span class="counter" id="entitiesCounter"></span>
+				</div>
+
+				<div data-simplebar data-simplebar-auto-hide="false" class="scroll_container">
+					<div id="entitiesContainer" class="column" ></div>
+				</div>
+			</div>
+			<div id="values" class="big_column column border">
+			
+				<div class="entitiesTitle bottom_border center_title snapLast">
+					<span class="title flex1">Data</span>
+					<button id="more_button_ecs" type="submit" class="more_button button_sys space_right" onclick="toggleShowInheritedEcs()"><span>More</span></button>
+				</div>
+
+				<div data-simplebar data-simplebar-auto-hide="false" class="scroll_container">
+					<div id="dataContainer"></div>
+				</div>
+			</div>
+		  </div>
+		  
+		<div id="scenario" class="main hidden">			
+			<div class="big_column column border">
+				<div class="entitiesTitle bottom_border center_title">
+					<span class="title">Scenarios</span>
+					<span class="counter" id="__entitiesCounter"></span>
+				</div>
+				
+				<div data-simplebar data-simplebar-auto-hide="false" class="scroll_container">
+					<div id="__entitiesContainer" class="column"></div>
+				</div>
+			</div>
+			
+			<div class="big_column column border flex1">
+				<canvas id="canvas"></canvas>
+			</div>
+			
+			<div class="big_column column border">
+				<div class="entitiesTitle bottom_border center_title snapLast">
+					<span class="title">Data</span>
+					<button id="more_button_scenario" type="submit" class="button_sys space_right" onclick="toggleShowInheritedScenario()"><span>More</span></button>
+				</div>
+				
+				<div data-simplebar data-simplebar-auto-hide="false" class="scroll_container">
+					<div id="__dataContainer"></div>
+				</div>
+			</div>
+		</div>
+		
+		<div id="info" class="main hidden">			
+			<div class="big_column column border">
+				<div class="entitiesTitle bottom_border center_title">
+					<span class="title">Data</span>
+					<span class="counter" id="__entitiesCounter"></span>
+				</div>
+				
+				<div data-simplebar data-simplebar-auto-hide="false" class="scroll_container">
+					<div id="_z_entitiesContainer" class="column"></div>
+				</div>
+			</div>
+			
+			<div class="big_column column border flex1">
+				<div class="entitiesTitle bottom_border center_title snapLast">
+					<span class="title">Info</span>
+				</div>
+				
+				<div data-simplebar data-simplebar-auto-hide="false" class="scroll_container">
+					<div id="_z_dataContainer"></div>
+				</div>
+			</div>
+		</div>
+		  
+		<div id="screenshot" class="main column hidden">			
+			<img id="screenshot_image"/>
+		</div>
+
+    </body>
+	<script src="scripts/Tree.js"></script>
+	<script src="scripts/PanAndZoomCanvas.js"></script>
+	<script type="text/javascript" src="scripts/pako/pako.js"></script>
+</html>
