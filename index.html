@@ -648,25 +648,48 @@
 			});
 		}
 		
+		//console
 		function toggleErrorLog() {
 			errorFlag = !errorFlag;
 			updateLogFilters();
 			updateLogView();
 		}
 		
+		//console
 		function toggleWarningLog() {
 			warningFlag = !warningFlag;
 			updateLogFilters();
 			updateLogView();
 		}
 		
+		//console
 		function toggleMessageLog() {
 			messageFlag = !messageFlag;
 			updateLogFilters();
 			updateLogView();
 		}
 		
-		function updateLogFilters() {
+		const MessageType = Object.freeze({None:0, Error:1, Warning:2, Message:3});
+		
+		function getMessageType(type)
+		{
+			switch(type)
+			{
+				case "exception":
+				case "assert": 
+				case "error":
+					return MessageType.Error;
+				case "warning": 
+					return MessageType.Warning;
+				case "log":
+					return MessageType.Message;
+				default:
+					throw `Unknown console message type ${type}`;
+			}
+		}
+		
+		//console
+		function updateLogFilters(log) {
 			if (errorFlag) {
 				document.getElementById('error').classList.add('selected');
 			} else {
@@ -689,11 +712,13 @@
 			var warningCount = 0;
 			var messageCount = 0;
 			
-			for (const index in report.log) {
-				switch(report.log[index].type){
-					case "error":   errorCount++;   break;
-					case "warning": warningCount++; break;
-					case "message": messageCount++; break;
+			for (const data of log) {
+				switch(getMessageType(data.type)){
+					case MessageType.Error:   errorCount++;   break;
+					case MessageType.Warning: warningCount++; break;
+					case MessageType.Message: messageCount++; break;
+					
+					default: throw `Unknown console message type ${getMessageType(data.type)}`;
 				}
 			}
 			
@@ -702,29 +727,32 @@
 			document.getElementById('messageCount').innerHTML = messageCount;
 		}
 		
-		function updateLogView() {
+		//console
+		function updateLogView(log) {
 			var container = document.getElementById('logContainer');
 			container.innerHTML = '';
 			
-			for (const index in report.log) {
+			for (const data of log) {
+				var type = getMessageType(data.type);
+				var flag = true;
+				
+				switch(type) {
+					case MessageType.Error:   flag = errorFlag;   break;
+					case MessageType.Warning: flag = warningFlag; break;
+					case MessageType.Message: flag = messageFlag; break;
+					
+					default: throw `Unknown console message type ${type}`;
+				}
 			
-				if(report.log[index].type == "error" && !errorFlag) {
+				if (!flag) {
 					continue;
 				}
 				
-				if(report.log[index].type == "warning" && !warningFlag) {
-					continue;
-				}
-				
-				if(report.log[index].type == "message" && !messageFlag) {
-					continue;
-				}
-			
-				var button = getLogButton(report.log[index].type, report.log[index].text, report.log[index] == selectedLog);
+				var button = getLogButton(data.count, type, data.message, data.stack, data == selectedLog);
 				container.appendChild(button);
 				
 				$(button).click(function() {
-					var logData = report.log[index];
+					var logData = data;
 					onLogMessageClick(logData);
 				});
 			}
@@ -804,10 +832,9 @@
 			return button;
 		}
 		
-		function getLogButton(type, text, isSelected){
-		
-			var lines = text.split("\n");
-		
+		//console
+		function getLogButton(count, type, message, stack, isSelected){
+
 			var button = document.createElement('button');
 			button.type = "submit";
 			button.classList.add('button');
@@ -822,8 +849,20 @@
 			{
 				button.classList.add('selected');
 			}
+
+			var dotClass = "";
+
+			switch(type) {
+				case MessageType.Error:   dotClass = "error";   break;
+				case MessageType.Warning: dotClass = "warning"; break;
+				case MessageType.Message: dotClass = "message"; break;
+				
+				default: throw `Unknown console message type ${type}`;
+			}
+
+			var stackLines = stack.split("\n");
 			
-			button.innerHTML = '<span class="dot console ' + type + '"></span><div class="column"><span>' + lines[0] + '</span><span class="small_text">' + lines[1] + '</span></div>';
+			button.innerHTML = `<span class="dot console ${dotClass}"></span><div class="column"><span>${message}</span><span class="small_text">${stackLines[0]}</span></div>`;
 			return button;
 		}
 
@@ -1297,7 +1336,7 @@
 		
 		return result;
 	}
-	
+
 	function getComponentType(component)
 	{
 		if(component.isBuffer)
@@ -1460,6 +1499,17 @@
 		
 		formatHeaders(report.project, report.emoji, report.timestamp, report.deviceId);
 		
+		for (const module of report.modules)
+		{
+			switch(module.name)
+			{
+				case "console":
+					updateLogFilters(module.data);
+					updateLogView(module.data);
+					break;
+			}
+		}
+		
 		$( "#loading" ).addClass('hidden');
 		$( "#header" ).removeClass('hidden');
 		changeViewState('chapter_log');
@@ -1468,8 +1518,7 @@
 		resetComponents();
 		updateEntities();
 
-		updateLogFilters();
-		updateLogView();
+
 		
 
 		
