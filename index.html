@@ -10,7 +10,7 @@
 		</noscript>
 	
         <meta charset="utf-8">
-        <title>New Webpage</title>
+        <title>Unity Report Viewer</title>
 		
 		<link href="https://allfont.ru/allfont.css?fonts=droid-sans-mono" rel="stylesheet" type="text/css" />
 		
@@ -1431,7 +1431,19 @@
 		console.timeEnd('JSON.parse');
 		
 		return result;
-	}	
+	}
+	
+	//common
+	function formatHeaders(project, emoji, timestamp, deviceId)
+	{
+		var date = new Date(timestamp * 1000);
+		var dateText = date.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+		var title = `${project} ${emoji} ${dateText} ${date.toLocaleTimeString()}`;
+		
+		document.getElementById("title").innerHTML = title;
+		document.getElementById("title").title = deviceId;
+		document.title = `${title} [${deviceId}]`;
+	}
 	
 	function processLoadedData(data)
 	{
@@ -1445,6 +1457,13 @@
 		{
 			showLoadingMessage(e);
 		}
+		
+		formatHeaders(report.project, report.emoji, report.timestamp, report.deviceId);
+		
+		$( "#loading" ).addClass('hidden');
+		$( "#header" ).removeClass('hidden');
+		changeViewState('chapter_log');
+		
 /*
 		resetComponents();
 		updateEntities();
@@ -1452,9 +1471,7 @@
 		updateLogFilters();
 		updateLogView();
 		
-		$( "#loading" ).addClass('hidden');
-		$( "#header" ).removeClass('hidden');
-		changeViewState('chapter_log');
+
 		
 		//$('.screenshot img').attr("src", report.screenshot);
 		
@@ -1523,6 +1540,7 @@
 	function loadFileFromDropbox(dropboxToken, filePath, onSuccess, onError, onProgress)
 	{
 		var xhr = new XMLHttpRequest();
+		
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4)
 			{
@@ -1676,7 +1694,7 @@
 		</div>
 
 		<div id="header" class="header hidden">
-			<span class="title" title="d20aac88063e550dfae7c948e099c7a2984d92ea">MJP2 🍌 December 17, 1995 03:24:00</span>			
+			<span id="title" class="title"></span>			
 			<div id="chapters" class="chapters">
 				<span id="chapter_log" class="chapter" onclick="changeViewState(this.id);">Log</span>
 				<span id="chapter_ecs" class="chapter" onclick="changeViewState(this.id);">Entities</span>
