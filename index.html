@@ -107,6 +107,12 @@
 			background-color: #394047;
 		}
 		
+		.header > .chapters > .disabled
+		{
+			opacity: 0.2;
+			cursor: default;
+		}
+		
 		.header > .title
 		{
 			font-weight: bold;
@@ -1396,11 +1402,172 @@
 				console.error("Unknown entity type:\""+ componentType +"\"");
 		}
 	}
+	
+	function showLodingFromFile()
+	{
+		throw "Load from document!";
+	}
+	
+	function getReportData(data){
+		if (data == null)
+			throw "Null value provided";
+	
+		if (!(data instanceof ArrayBuffer)) 
+			throw "Data type is wrong. " + data;
+		
+		if (data.byteLength == 0) 
+			throw "File is empty";
+	
+		console.time('pako.ungzip')
+	
+		var json = pako.ungzip(data, { to: 'string' });
+		
+		console.timeEnd('pako.ungzip');
+	
+		console.time('JSON.parse')
+
+		var result = JSON.parse(json);
+
+		console.timeEnd('JSON.parse');
+		
+		return result;
+	}	
+	
+	function processLoadedData(data)
+	{
+		showLoadingMessage("Loading complete");
+		
+		try
+		{
+			report = getReportData(data);
+		} 
+		catch(e)
+		{
+			showLoadingMessage(e);
+		}
+/*
+		resetComponents();
+		updateEntities();
+
+		updateLogFilters();
+		updateLogView();
+		
+		$( "#loading" ).addClass('hidden');
+		$( "#header" ).removeClass('hidden');
+		changeViewState('chapter_log');
+		
+		//$('.screenshot img').attr("src", report.screenshot);
+		
+		document.getElementById("canvas").addEventListener('nodeSelected', onNodeSelected);
+		
+		var roomScenario = getEntity(report.entityDump.entities, ["MJP2.Common.Components.Scenario", "MJP2.Room.Components.IsBelongToRoom"]);
+		if (roomScenario != null) {
+			selectedScenarioEntity = roomScenario;
+			
+			selectScenario(roomScenario);
+			updateScenarioData(roomScenario);
+		}
+		
+		updateScenarioEntities();
+
+		selectedInfoNode = report.info;
+		updateInfoView();
+		
+		screenshotResize();
+		*/
+	}
+	
+	//common
+	function selectDataLoadingStrategy()
+	{
+		const urlParams = new URLSearchParams(window.location.search);
+		
+		var noParams = urlParams.entries().next().done;
+		if (noParams)
+		{
+			showLodingFromFile();
+			return;
+		}
+		
+		const projectName = getParameter('project');
+
+		switch(projectName) {
+			case 'MJP2':
+				const dropboxToken = "9WIFLjOBNHoAAAAAAAAAAXtRkMi29G2kfGFF6n-h3UtZuqqdmJ37wOetVRKYr29I"; //вынести
+				const filePath = getParameter('file');
+				
+				loadFileFromDropbox(
+					dropboxToken, 
+					filePath,
+					processLoadedData,
+					x => showLoadingMessage(x),
+					x => showLoadingMessage("Loading " + filePath + " " + Math.ceil(x * 100) + "%" ));
+					
+				break;
+
+			default:
+				throw "Unknown project \""+ projectName +"\"";
+		}
+		
+		function getParameter(name)
+		{
+			const result = urlParams.get(name);
+		
+			if (!result || result.length === 0)
+				throw "Parameter \"" + name + "\" is not valid";
+			
+			return result;
+		}
+	}
+	
+	function loadFileFromDropbox(dropboxToken, filePath, onSuccess, onError, onProgress)
+	{
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState == 4)
+			{
+				if (xhr.status == 200) {
+					onSuccess(xhr.response);
+				} else {
+					onError(xhr.responseText);
+				}
+			} 
+			
+			if (xhr.readyState == 2)
+			{
+				xhr.responseType = (xhr.status == 200) ? "arraybuffer" : "text";
+			}
+		};
+		
+		xhr.onprogress = function(evt) {          
+			if (evt.lengthComputable)
+				onProgress(evt.loaded / evt.total);
+		};
+		
+		xhr.onerror = function(evt) {          
+			onError("XMLHttpRequest error. Status:" + xhr.status);
+		};
+		
+		xhr.open("POST", 'https://content.dropboxapi.com/2/files/download', true);
+		xhr.setRequestHeader("Authorization", "Bearer " + dropboxToken);
+		xhr.setRequestHeader("Content-type", "application/octet-stream");
+		xhr.setRequestHeader("Dropbox-API-Arg", '{"path": "' + filePath + '"}');
+		xhr.send();
+	}
 	  
 	function onPageLoaded() {
-		var loadingMessage = "Loading /data.json";
-		showLoadingMessage(loadingMessage);
+	
+		try
+		{
+			selectDataLoadingStrategy();
+		}
+		catch (e)
+		{
+			showLoadingMessage(e);
+		}
 		
+		return;
+
 		$.ajax({
 			url: 'https://content.dropboxapi.com/2/files/download',
 			type: 'post',
@@ -1484,8 +1651,6 @@
 				console.error(data);
 			}
 		});
-		
-		$(window).resize(screenshotResize);
 	}
 
 	if(window.attachEvent) {
@@ -1502,21 +1667,6 @@
 			window.onload = onPageLoaded;
 		}
 	}
-	
-	function screenshotResize() {
-		/*var box = $('.screenshot');
-		var img = $('.screenshot img');
-
-		var naturalWidth = img.get(0).naturalWidth;
-		var naturalHeight = img.get(0).naturalHeight;
-
-		var scale = Math.min(box.width() / naturalWidth, box.height() / naturalHeight);
-
-		scale = Math.min(scale, 1.0);
-
-		img.css("width", naturalWidth * scale);
-		img.css("height", naturalHeight * scale);*/
-	}
 	</script>
 	
     <body>
@@ -1530,13 +1680,13 @@
 			<div id="chapters" class="chapters">
 				<span id="chapter_log" class="chapter" onclick="changeViewState(this.id);">Log</span>
 				<span id="chapter_ecs" class="chapter" onclick="changeViewState(this.id);">Entities</span>
-				<span id="" class="chapter" onclick="">Systems</span>
+				<span id="" class="chapter disabled" onclick="">Systems</span>
 				<span id="chapter_scenario" class="chapter" onclick="changeViewState(this.id);">Scenarios</span>
-				<span id="" class="chapter" onclick="">Game Objects</span>
+				<span id="" class="chapter disabled" onclick="">Game Objects</span>
 				<span id="chapter_info" class="chapter" onclick="changeViewState(this.id);">Info</span>
 				<span id="chapter_screenshot" class="chapter" onclick="changeViewState(this.id);">Screenshot</span>
-				<span id="" class="chapter" onclick="">Fps</span>
-				<span id="" class="chapter" onclick="">Download</span>
+				<span id="" class="chapter disabled" onclick="">Fps</span>
+				<span id="" class="chapter disabled" onclick="">Download</span>
 			</div>
 		</div>
 		  
