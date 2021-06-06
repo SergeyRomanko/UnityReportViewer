@@ -11,13 +11,13 @@
 	
         <meta charset="utf-8">
         <title>Unity Report Viewer</title>
-		
-		<link href="https://allfont.ru/allfont.css?fonts=droid-sans-mono" rel="stylesheet" type="text/css" />
-		
+				
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 		
 		<link rel="stylesheet" href="node_modules/simplebar/dist/simplebar.css"/>
 		<script src="node_modules/simplebar/dist/simplebar.js"></script>
+		
+		<script src="scripts/model/report.js"></script>
 		
 		<style>
 			@font-face {
@@ -195,6 +195,7 @@
 		.flex1 {
 			flex-grow: 1;
 			flex-shrink: 1;
+			flex-basis: 100%;
 		}
 
 		.filterTitle {
@@ -310,9 +311,14 @@
 		}
 		
 		.ellipsis {
-		  text-overflow: ellipsis;
-		  white-space: pre;
-		  overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			overflow: hidden;
+
+			text-overflow: ellipsis;
+			overflow: hidden; 
+			width:0;
+			min-width:100%;
 		}
 		
 		.bottom_border {
@@ -454,6 +460,7 @@
 			height: 10px;
 			width: 10px;
 			margin-right: 12px;
+			flex-shrink : 0;
 		}
 		
 		.dot.console.error {
@@ -467,7 +474,19 @@
 		.dot.console.message {
 			background-color: #57B3F4;
 		}
-		
+
+		.console.counter {
+			display: inline-flex;
+			align-content: center;
+			justify-content: center;
+			flex-shrink: 0;
+			background-color: #909090;
+			color: #1d1d1d;
+			border-radius: 5px;
+			line-height: 18px;
+			width: 40px;
+		}
+
 		.mid {
 			display: flex;
 			align-items: center;
@@ -485,12 +504,7 @@
 		}
 		
 		.log_message {
-			white-space: pre-wrap;
 			color: #e6e6e6;
-		}
-		
-		.margin_bottom {
-			margin-bottom: 10px;
 		}
 		
 		.loading {
@@ -546,7 +560,6 @@
 			max-width: 100%;
 			max-height: 100%;
 		}
-		
 		</style>
     </head>
 		
@@ -669,25 +682,6 @@
 			updateLogView();
 		}
 		
-		const MessageType = Object.freeze({None:0, Error:1, Warning:2, Message:3});
-		
-		function getMessageType(type)
-		{
-			switch(type)
-			{
-				case "exception":
-				case "assert": 
-				case "error":
-					return MessageType.Error;
-				case "warning": 
-					return MessageType.Warning;
-				case "log":
-					return MessageType.Message;
-				default:
-					throw `Unknown console message type ${type}`;
-			}
-		}
-		
 		//console
 		function updateLogFilters(log) {
 			if (errorFlag) {
@@ -713,12 +707,12 @@
 			var messageCount = 0;
 			
 			for (const data of log) {
-				switch(getMessageType(data.type)){
-					case MessageType.Error:   errorCount++;   break;
-					case MessageType.Warning: warningCount++; break;
-					case MessageType.Message: messageCount++; break;
+				switch(data.type){
+					case Console.MessageType.Error:   errorCount++;   break;
+					case Console.MessageType.Warning: warningCount++; break;
+					case Console.MessageType.Message: messageCount++; break;
 					
-					default: throw `Unknown console message type ${getMessageType(data.type)}`;
+					default: throw `Unknown console message type ${data.type}`;
 				}
 			}
 			
@@ -726,29 +720,46 @@
 			document.getElementById('warningCount').innerHTML = warningCount;
 			document.getElementById('messageCount').innerHTML = messageCount;
 		}
-		
+
 		//console
-		function updateLogView(log) {
-			var container = document.getElementById('logContainer');
-			container.innerHTML = '';
-			
-			for (const data of log) {
-				var type = getMessageType(data.type);
+		function filterLog(log)
+		{
+			var result = [];
+
+			for (const data of log)
+			{
 				var flag = true;
 				
-				switch(type) {
-					case MessageType.Error:   flag = errorFlag;   break;
-					case MessageType.Warning: flag = warningFlag; break;
-					case MessageType.Message: flag = messageFlag; break;
+				switch(data.type) {
+					case Console.MessageType.Error:   flag = errorFlag;   break;
+					case Console.MessageType.Warning: flag = warningFlag; break;
+					case Console.MessageType.Message: flag = messageFlag; break;
 					
-					default: throw `Unknown console message type ${type}`;
+					default: throw `Unknown console message type ${data.type}`;
 				}
 			
 				if (!flag) {
 					continue;
 				}
 				
-				var button = getLogButton(data.count, type, data.message, data.stack, data == selectedLog);
+				result.push(data);
+			}
+
+			return result;
+		}
+		
+		//console
+		function updateLogView(log) {
+			var container = document.getElementById('logContainer');
+			container.innerHTML = '';
+
+			var filteredLog = filterLog(log);
+
+			for (const data of filteredLog)
+			{
+
+				var button = getLogButton(data.count, data.type, data.message, data.stack, data == selectedLog, data == log[log.length - 1]);
+
 				container.appendChild(button);
 				
 				$(button).click(function() {
@@ -833,18 +844,23 @@
 		}
 		
 		//console
-		function getLogButton(count, type, message, stack, isSelected){
+		function getLogButton(count, type, message, stack, isSelected, isLast){
 
 			var button = document.createElement('button');
 			button.type = "submit";
 			button.classList.add('button');
 			button.classList.add('regular');
 			button.classList.add('ellipsis');
-			button.classList.add('bottom_border');
+			
 			button.classList.add('row');
 			button.classList.add('mid');
 			button.classList.add('log_line');
-			
+
+			if (!isLast) 
+			{
+				button.classList.add('bottom_border');
+			}
+
 			if (isSelected) 
 			{
 				button.classList.add('selected');
@@ -853,16 +869,26 @@
 			var dotClass = "";
 
 			switch(type) {
-				case MessageType.Error:   dotClass = "error";   break;
-				case MessageType.Warning: dotClass = "warning"; break;
-				case MessageType.Message: dotClass = "message"; break;
+				case Console.MessageType.Error:   dotClass = "error";   break;
+				case Console.MessageType.Warning: dotClass = "warning"; break;
+				case Console.MessageType.Message: dotClass = "message"; break;
 				
 				default: throw `Unknown console message type ${type}`;
 			}
 
+			count = Math.floor(Math.random() * 10);
+
 			var stackLines = stack.split("\n");
-			
-			button.innerHTML = `<span class="dot console ${dotClass}"></span><div class="column"><span>${message}</span><span class="small_text">${stackLines[0]}</span></div>`;
+			var countSpan = (count > 0) ? `<span class="console counter">${ count > 99 ? "99+" : "99+" }</span>` : "";
+
+			button.innerHTML = 
+				`<span class="dot console ${dotClass}"></span>
+				<div class="column flex1">
+					<span class="log_message ellipsis">${message}</span>
+					<span class="small_text ellipsis">${stackLines[0]}</span>
+				</div>
+				${countSpan}`;
+
 			return button;
 		}
 
@@ -1446,74 +1472,46 @@
 	{
 		throw "Load from document!";
 	}
-	
-	function getReportData(data){
-		if (data == null)
-			throw "Null value provided";
-	
-		if (!(data instanceof ArrayBuffer)) 
-			throw "Data type is wrong. " + data;
-		
-		if (data.byteLength == 0) 
-			throw "File is empty";
-	
-		console.time('pako.ungzip')
-	
-		var json = pako.ungzip(data, { to: 'string' });
-		
-		console.timeEnd('pako.ungzip');
-	
-		console.time('JSON.parse')
 
-		var result = JSON.parse(json);
-
-		console.timeEnd('JSON.parse');
-		
-		return result;
-	}
-	
 	//common
-	function formatHeaders(project, emoji, timestamp, deviceId)
+	function formatHeaders(manifest)
 	{
-		var date = new Date(timestamp * 1000);
+		var date = new Date(manifest.timestamp * 1000);
 		var dateText = date.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
-		var title = `${project} ${emoji} ${dateText} ${date.toLocaleTimeString()}`;
+		var title = `${manifest.project} ${manifest.emoji} ${dateText} ${date.toLocaleTimeString()}`;
 		
 		document.getElementById("title").innerHTML = title;
-		document.getElementById("title").title = deviceId;
-		document.title = `${title} [${deviceId}]`;
+		document.getElementById("title").title = manifest.deviceId;
+		document.title = `${title} [${manifest.deviceId}]`;
 	}
 	
 	function processLoadedData(data)
 	{
 		showLoadingMessage("Loading complete");
 		
+		var report = new Report(data);
+
+		formatHeaders(report.getManifest());
+
+		var consoleData = report.getConsole();
+		updateLogFilters(consoleData);
+		updateLogView(consoleData);
+
+		$( "#loading" ).addClass('hidden');
+		$( "#header" ).removeClass('hidden');
+		changeViewState('chapter_log');
+
+		console.log(report.getFps());
+
 		try
 		{
-			report = getReportData(data);
+
 		} 
 		catch(e)
 		{
 			showLoadingMessage(e);
 		}
-		
-		formatHeaders(report.project, report.emoji, report.timestamp, report.deviceId);
-		
-		for (const module of report.modules)
-		{
-			switch(module.name)
-			{
-				case "console":
-					updateLogFilters(module.data);
-					updateLogView(module.data);
-					break;
-			}
-		}
-		
-		$( "#loading" ).addClass('hidden');
-		$( "#header" ).removeClass('hidden');
-		changeViewState('chapter_log');
-		
+
 /*
 		resetComponents();
 		updateEntities();
@@ -1757,8 +1755,8 @@
 			</div>
 		</div>
 		  
-		<div id="log" class="main column hidden">
-			<div class="big_column column border margin_bottom flex1">
+		<div id="log" class="main hidden log">
+			<div class="big_column column border flex1">
 				<div class="entitiesTitle bottom_border row">
 					<div class="center_title flex1" ><span class="title">Console</span></div>
 					<button id="error"   type="submit" class="button regular border_solid" onclick="toggleErrorLog()"><span class="dot console error"></span><span id="errorCount">-</span></button>
