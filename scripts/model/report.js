@@ -159,6 +159,8 @@ var Report = function()
     var privateStaticMethod = function() {};
     var privateStaticVariable = "foo";
 
+    var consoleData = null;
+
     var constructor = function Report(reportBinary)
     {
         var data = getReportData(reportBinary);
@@ -170,7 +172,7 @@ var Report = function()
 
         this.getManifest = function() { return Model.getManifest(data.project, data.application, data.timestamp, data.emoji, data.version, data.deviceId) };
 
-        this.getConsole = function() { return Console.readData(getModule(data, "console")) };
+        this.getConsole = function() { return consoleData != null ? consoleData : (consoleData = Console.readData(getModule(data, "console"))) };
 
         this.getFps = function() { return Fps.readData(getModule(data, "fps")) };
     };

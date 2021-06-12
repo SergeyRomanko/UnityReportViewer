@@ -198,6 +198,10 @@
 			flex-basis: 100%;
 		}
 
+		.flex1.shrink{
+			flex-shrink: 1.3;
+		}
+
 		.filterTitle {
 			display: flex;
 			flex: 1;
@@ -298,12 +302,12 @@
 		
 		.button.regular {
 			background-color: #22272b;
-			color: #e6e6e6;
+			color: #cecece;
 			border-radius: 0px;
 		}
 		
 		.button.regular.selected {
-			background-color: #384147;
+			background-color: #31393f;
 		}
 		
 		button:hover {
@@ -494,7 +498,7 @@
 		
 		.small_text {
 			font-size: 14px;
-			color: #c3c3c3;
+			color: #929292;
 		}
 		
 		.log_line {
@@ -504,7 +508,9 @@
 		}
 		
 		.log_message {
-			color: #e6e6e6;
+			color: #cecece;
+			white-space: pre-wrap;
+			line-height: 20pt;
 		}
 		
 		.loading {
@@ -576,10 +582,10 @@
 		var components = [];
 		var neg = false;
 		
-		var errorFlag = true;
-		var warningFlag = false;
-		var messageFlag = true;
-		var selectedLog = null;
+		var errorFlag = true;	 //console
+		var warningFlag = false; //console
+		var messageFlag = true;	 //console
+		var selectedLog = null;	 //console
 		
 		var showInheritedEcs = false;
 		var showInheritedScenario = false;
@@ -660,26 +666,39 @@
 				}
 			});
 		}
-		
+
+		//console
+		function onLogMessageClick(logData) {
+			selectedLog = logData;
+
+			var container = document.getElementById('messageContainer');
+			container.textContent = selectedLog.message + "\n" + selectedLog.stack;
+
+			updateLogView(report.getConsole(), selectedLog);
+		}
+
 		//console
 		function toggleErrorLog() {
 			errorFlag = !errorFlag;
-			updateLogFilters();
-			updateLogView();
+			updateConsoleViews(report.getConsole(), selectedLog);
 		}
 		
 		//console
 		function toggleWarningLog() {
 			warningFlag = !warningFlag;
-			updateLogFilters();
-			updateLogView();
+			updateConsoleViews(report.getConsole(), selectedLog);
 		}
 		
 		//console
 		function toggleMessageLog() {
 			messageFlag = !messageFlag;
-			updateLogFilters();
-			updateLogView();
+			updateConsoleViews(report.getConsole(), selectedLog);
+		}
+
+		//console
+		function updateConsoleViews(consoleData, selectedLog) {
+			updateLogFilters(consoleData, selectedLog);
+			updateLogView(consoleData, selectedLog);
 		}
 		
 		//console
@@ -749,7 +768,7 @@
 		}
 		
 		//console
-		function updateLogView(log) {
+		function updateLogView(log, selected) {
 			var container = document.getElementById('logContainer');
 			container.innerHTML = '';
 
@@ -757,8 +776,8 @@
 
 			for (const data of filteredLog)
 			{
-
-				var button = getLogButton(data.count, data.type, data.message, data.stack, data == selectedLog, data == log[log.length - 1]);
+				var dbg = data == selected;
+				var button = getLogButton(data.count, data.type, data.message, data.stack, data == selected, data == log[log.length - 1]);
 
 				container.appendChild(button);
 				
@@ -800,15 +819,6 @@
 					updateInfoNodeView(container, child, childName);
 				}
 			}
-		}
-		
-		function onLogMessageClick(logData) {
-			selectedLog = logData;
-
-			var container = document.getElementById('messageContainer');
-			container.innerHTML = selectedLog.text;
-
-			updateLogView();
 		}
 		
 		function getComponentButton(name, neg) {	  
@@ -876,16 +886,13 @@
 				default: throw `Unknown console message type ${type}`;
 			}
 
-			count = Math.floor(Math.random() * 10);
-
-			var stackLines = stack.split("\n");
-			var countSpan = (count > 0) ? `<span class="console counter">${ count > 99 ? "99+" : "99+" }</span>` : "";
+			var countSpan = (count > 1) ? `<span class="console counter">${ count > 99 ? "99+" : count }</span>` : "";
 
 			button.innerHTML = 
 				`<span class="dot console ${dotClass}"></span>
 				<div class="column flex1">
 					<span class="log_message ellipsis">${message}</span>
-					<span class="small_text ellipsis">${stackLines[0]}</span>
+					<span class="small_text ellipsis">${stack.split("\n")[0]}</span>
 				</div>
 				${countSpan}`;
 
@@ -1489,13 +1496,11 @@
 	{
 		showLoadingMessage("Loading complete");
 		
-		var report = new Report(data);
+		report = new Report(data);
 
 		formatHeaders(report.getManifest());
 
-		var consoleData = report.getConsole();
-		updateLogFilters(consoleData);
-		updateLogView(consoleData);
+		updateConsoleViews(report.getConsole());
 
 		$( "#loading" ).addClass('hidden');
 		$( "#header" ).removeClass('hidden');
@@ -1515,10 +1520,6 @@
 /*
 		resetComponents();
 		updateEntities();
-
-
-		
-
 		
 		//$('.screenshot img').attr("src", report.screenshot);
 		
@@ -1631,8 +1632,9 @@
 			showLoadingMessage(e);
 		}
 		
-		return;
+		return;	// <== !!!
 
+		/*
 		$.ajax({
 			url: 'https://content.dropboxapi.com/2/files/download',
 			type: 'post',
@@ -1695,7 +1697,9 @@
 				return xhr;
 			}
 		});
+		*/
 		
+		/*
 		$.ajax({
 			url: 'https://content.dropboxapi.com/2/files/download',
 			type: 'post',
@@ -1716,6 +1720,7 @@
 				console.error(data);
 			}
 		});
+		*/
 	}
 
 	if(window.attachEvent) {
@@ -1756,7 +1761,7 @@
 		</div>
 		  
 		<div id="log" class="main hidden log">
-			<div class="big_column column border flex1">
+			<div class="big_column column border flex1 shrink">
 				<div class="entitiesTitle bottom_border row">
 					<div class="center_title flex1" ><span class="title">Console</span></div>
 					<button id="error"   type="submit" class="button regular border_solid" onclick="toggleErrorLog()"><span class="dot console error"></span><span id="errorCount">-</span></button>
