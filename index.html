@@ -559,7 +559,12 @@
 			position: absolute;
 			background: #16191C;
 		}
-		
+
+		#fps_canvas
+		{
+			background: #16191C;
+		}
+
 		#screenshot_image
 		{
 			object-fit: scale-down;
@@ -651,6 +656,12 @@
 				$( "#info" ).removeClass('hidden');
 			} else {
 				$( "#info" ).addClass('hidden');
+			}
+
+			if (id == "chapter_fps") {
+				$( "#fps" ).removeClass('hidden');
+			} else {
+				$( "#fps" ).addClass('hidden');
 			}
 			
 			var v = $( "#chapters" );
@@ -1491,6 +1502,236 @@
 		document.getElementById("title").title = manifest.deviceId;
 		document.title = `${title} [${manifest.deviceId}]`;
 	}
+
+	//fps
+	function updateFpsViews(data)
+	{
+		var frames = data.frames;
+
+		const canvas = document.getElementById("fps_canvas");
+
+		var rect = canvas.parentNode.getBoundingClientRect();
+		canvas.width = rect.width;
+		canvas.height = rect.height;
+
+		const context = canvas.getContext('2d');
+		context.clearRect(0, 0, rect.width, rect.height);
+
+		OnPopulateMesh(frames, canvas.width, canvas.height)
+
+		requestAnimationFrame( () => updateFpsViews(data) );
+	}
+
+	function OnPopulateMesh(frames, canvasWidth, canvasHeight)
+	{
+		const ScaleSteps = [1/200, 1/160, 1/120, 1/100, 1/60, 1/30, 1/20, 1/12, 1/6];
+		const TargetFps = 60;
+		const VerticalPadding = 10;
+		const DataPointWidth = 4.0;
+		const DataPointMargin = 2.0;
+
+		var graphWidth = Math.min(frames.length * (DataPointWidth + DataPointMargin), canvasWidth);
+		var graphHeight = 300;
+
+		var _clipBounds = { x:(canvasWidth - graphWidth) / 2.0, y:(canvasHeight - graphHeight) / 2.0, w:graphWidth, h:graphHeight };
+
+		const canvas = document.getElementById("fps_canvas");
+		const context = canvas.getContext('2d');
+		context.beginPath();  
+		context.rect(_clipBounds.x, _clipBounds.y, _clipBounds.w, _clipBounds.h);
+		context.fillStyle = 'rgba(26, 30, 33, 255)';
+		context.fill();
+
+		var targetFps = TargetFps;
+		var maxValue = 1.0 / targetFps;
+
+		// Holds the index of the nearest 'useful' FPS step
+		var fpsStep = -1.0;
+		var maxFrameTime = CalculateMaxFrameTime(_clipBounds, frames);
+
+		console.log(maxFrameTime);
+
+		for (var i = 0; i < ScaleSteps.length; i++)
+		{
+			var step = ScaleSteps[i];
+
+			if (maxFrameTime < step * 1.1)
+			{
+				maxValue = step;
+				fpsStep = i;
+				break;
+			}
+		}
+
+		// Fall back on the largest one
+		if (fpsStep < 0)
+		{
+			fpsStep = ScaleSteps.length - 1;
+			maxValue = ScaleSteps[fpsStep];
+		}
+
+		var verticalScale = (graphHeight - (VerticalPadding * 2.0)) / maxValue;
+
+		// Number of data points that can fit into the graph space
+		var availableDataPoints = Math.round(_clipBounds.w / DataPointWidth);
+
+		for (var i = 0; i < frames.length; i++)
+		{
+			// Break loop if all visible data points have been drawn
+			if (i >= availableDataPoints)
+			{
+				break;
+			}
+
+			// When using right-alignment, read from the end of the profiler buffer
+			var frame = frames[frames.length - 1 - i];
+
+			// Left-hand x coord
+			var lx = _clipBounds.x + graphWidth - DataPointWidth * (i + 1) - DataPointMargin * i;
+
+			DrawDataPoint(_clipBounds, lx, verticalScale, frame);
+		}
+
+		var j = 0;
+		for (var i = fpsStep; i >= 0; --i)
+		{
+			if (j >= 2)
+			{
+				break;
+			}
+
+
+
+			DrawAxis(_clipBounds.x, _clipBounds.y + _clipBounds.h - ScaleSteps[i] * verticalScale, _clipBounds.w, 1.0, ScaleSteps[i]);
+			++j;
+		}
+	}
+
+	function DrawDataPoint(_clipBounds, xPosition, verticalScale, frame)
+	{
+
+		const DataPointMargin = 2.0;
+        const DataPointVerticalMargin = 2.0;
+        const DataPointWidth = 4.0;
+
+		var LineColours = [
+			'rgba(052, 132, 162, 255)', 
+			'rgba(118, 152, 007, 255)', 
+			'rgba(151, 117, 007, 255)'];
+
+		var currentLineHeight = 0.0;
+
+		for (var j = 0; j < 3; j++)
+		{
+			var lineIndex = j;
+
+			var value = 0.0;
+
+			if (j == 0)
+			{
+				value = frame.update;
+			}
+			else if (j == 1)
+			{
+				value = frame.render;
+			}
+			else if (j == 2)
+			{
+				value = frame.other;
+			}
+
+			value *= verticalScale;
+
+			if (Math.abs(value) <= 0.001 || value - DataPointVerticalMargin * 2.0 < 0.0)
+			{
+				continue;
+			}
+
+			AddRect(
+				xPosition,
+				_clipBounds.y + _clipBounds.h - currentLineHeight - value,
+				DataPointWidth,
+				value - ((j != 0) ? DataPointVerticalMargin : 0),
+				LineColours[lineIndex]);
+
+			currentLineHeight += value;
+		}
+	}
+
+	//fps
+	function DrawAxis(x, y, width, height, frameTime)
+	{
+
+		var c = 'rgba(255, 255, 255, 102)';
+
+		AddRect(x, y, width, height, c);
+
+		const canvas = document.getElementById("fps_canvas");
+		const context = canvas.getContext('2d');
+
+		var ms = Math.floor(frameTime * 1000.0);
+        var fps = Math.round(1.0 / frameTime);
+		var text = `${ms}ms (${fps}FPS)`;
+
+		let metrics = ctx.measureText(text);
+		let fontHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+		let actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+
+		context.beginPath();  
+		context.rect(x + 20.0 -5, y - actualHeight / 2.0 -3, metrics.width - 3, actualHeight +6);
+		context.fillStyle = 'rgba(68, 68, 68, 255)';
+		context.fill();
+
+		context.font = '14px Droid Sans Mono';
+		context.textBaseline = 'middle';
+		context.fillStyle = c;
+		context.fillText(text, x + 20.0, y);
+
+
+		/*
+		if (label != null)
+		{
+			label.SetValue(frameTime, yPosition);
+		}
+		*/
+	}
+
+	//fps
+	function AddRect(x, y, width, height, c)
+	{
+		const canvas = document.getElementById("fps_canvas");
+		const context = canvas.getContext('2d');
+
+		context.beginPath();  
+		context.rect(x, y, width, height);
+		context.fillStyle = c;
+		context.fill();
+	}
+
+	function CalculateMaxFrameTime(_clipBounds, frames)
+	{
+		const DataPointMargin = 2.0;
+		const DataPointWidth = 4.0;
+
+		var c = Math.round(_clipBounds.w / (DataPointWidth + DataPointMargin));
+		var frameCount = frames.length;
+
+		var max = 0.0;
+
+		for (var i = 0; i < c; i++)
+		{
+			var frameNumber = frameCount - i - 1;
+
+			var t = frames[frameNumber];
+
+			if (t.frame > max)
+			{
+				max = t.frame;
+			}
+		}
+
+		return max;
+	}
 	
 	function processLoadedData(data)
 	{
@@ -1506,7 +1747,7 @@
 		$( "#header" ).removeClass('hidden');
 		changeViewState('chapter_log');
 
-		console.log(report.getFps());
+		updateFpsViews(report.getFps());
 
 		try
 		{
@@ -1755,7 +1996,7 @@
 				<span id="" class="chapter disabled" onclick="">Game Objects</span>
 				<span id="chapter_info" class="chapter" onclick="changeViewState(this.id);">Info</span>
 				<span id="chapter_screenshot" class="chapter" onclick="changeViewState(this.id);">Screenshot</span>
-				<span id="" class="chapter disabled" onclick="">Fps</span>
+				<span id="chapter_fps" class="chapter" onclick="changeViewState(this.id);">Fps</span>
 				<span id="" class="chapter disabled" onclick="">Download</span>
 			</div>
 		</div>
@@ -1894,6 +2135,12 @@
 				<div data-simplebar data-simplebar-auto-hide="false" class="scroll_container">
 					<div id="_z_dataContainer"></div>
 				</div>
+			</div>
+		</div>
+
+		<div id="fps" class="main column hidden">			
+			<div class="big_column column border flex1">
+				<canvas id="fps_canvas"></canvas>
 			</div>
 		</div>
 		  
