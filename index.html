@@ -1669,31 +1669,24 @@
 		const canvas = document.getElementById("fps_canvas");
 		const context = canvas.getContext('2d');
 
+		context.font = '14px Droid Sans Mono';
+
 		var ms = Math.floor(frameTime * 1000.0);
         var fps = Math.round(1.0 / frameTime);
 		var text = `${ms}ms (${fps}FPS)`;
 
-		let metrics = ctx.measureText(text);
+		let metrics = context.measureText(text);
 		let fontHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
 		let actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
 
 		context.beginPath();  
-		context.rect(x + 20.0 -5, y - actualHeight / 2.0 -3, metrics.width - 3, actualHeight +6);
+		context.rect(x + 20.0 - 5, y - actualHeight / 2.0 - 3, metrics.width + 10, actualHeight + 6);
 		context.fillStyle = 'rgba(68, 68, 68, 255)';
 		context.fill();
-
-		context.font = '14px Droid Sans Mono';
+		
 		context.textBaseline = 'middle';
 		context.fillStyle = c;
 		context.fillText(text, x + 20.0, y);
-
-
-		/*
-		if (label != null)
-		{
-			label.SetValue(frameTime, yPosition);
-		}
-		*/
 	}
 
 	//fps
